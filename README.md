@@ -97,12 +97,68 @@ GND is the ground pin.
 
 
 ## STM 32 CUBE PROGRAM :
+```C
+#include "main.h"
+#include "stdio.h"
+uint32_t adc_val;
 
+ADC_HandleTypeDef hadc;
+UART_HandleTypeDef huart2;
 
+uint32_t adc_val;
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_ADC_Init(void);
+static void MX_USART2_UART_Init(void);
+
+#if defined (_ICCARM) || defined (_ARMCC_VERSION)
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#elif defined(_GNUC_)
+
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#endif /* _ICCARM_ || __ARMCC_VERSION */
+
+PUTCHAR_PROTOTYPE
+{
+  HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 0xFFFF);
+  return ch;
+}
+int main(void)
+{
+  HAL_Init();
+  SystemClock_Config();
+  MX_GPIO_Init();
+  MX_ADC_Init();
+  MX_USART2_UART_Init();
+
+  while (1)
+  {
+	    HAL_ADC_Start(&hadc);
+	  		HAL_ADC_PollForConversion(&hadc,100);
+	  		adc_val = HAL_ADC_GetValue(&hadc);
+	  		HAL_ADC_Stop(&hadc);
+	  		HAL_Delay(500);
+
+	  		uint32_t soilmoist;
+     soilmoist = adc_val/10.24;
+	  		printf("soilmoisture :%ld\n",soilmoist);
+	  		if(adc_val<500)
+	  		{
+	  			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);;
+	  		}
+	  		if(adc_val>500)
+	  		{
+	  			 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);;
+	  		}
+  }
+}
+```
 
 ## Output screen shots on serial monitor   :
- 
- 
+![image](https://github.com/R-Udayakumar/EXPERIMENT--05-SOIL-MOISTURE-SENSOR-INTERFACE-TO-IOT-DEVELOPMENT-BOARD-/assets/118708024/b57865a4-05f2-4851-a6f7-665c7493a09f)
+### SERIAL PORT UTILITY OUTPUT :
+![image](https://github.com/R-Udayakumar/EXPERIMENT--05-SOIL-MOISTURE-SENSOR-INTERFACE-TO-IOT-DEVELOPMENT-BOARD-/assets/118708024/169f7a58-7722-4c69-a6a6-03b1949b89bd)
+
  
  
 ## Result :
